@@ -52,82 +52,70 @@
             </div>
          </div>
       </footer>
-
       <script>
-         const mockData = [
-            {
-               title: "Видео 1",
-               hashtags: "#кошки #смешное",
-               image: "placeholder.jpg",
-            },
-            {
-               title: "Видео 2",
-               hashtags: "#программирование #хакатон",
-               image: "placeholder.jpg",
-            },
-         ];
+         // Функция для отображения состояния "пусто"
+         function showEmptyState(message = "Начните вводить запрос") {
+            const resultsContainer = document.getElementById("searchResults");
+            resultsContainer.innerHTML = `
+                <div class="empty-results">
+                    <img src="https://yappy.media/images/search-nothing.svg" 
+                         alt="Интересные видео уже в Yappy!" 
+                         width="56" 
+                         height="56">
+                    <p>${message}</p>
+                </div>
+            `;
+         }
+
+         // Показываем начальное состояние при загрузке страницы
+         document.addEventListener("DOMContentLoaded", function () {
+            showEmptyState();
+         });
 
          document
             .getElementById("searchInput")
-            .addEventListener("input", function (e) {
-               const searchQuery = e.target.value.trim().toLowerCase();
+            .addEventListener("input", async function (e) {
+               const query = e.target.value.trim();
                const resultsContainer =
                   document.getElementById("searchResults");
 
-               if (searchQuery === "") {
-                  resultsContainer.innerHTML = `
-                     <div class="empty-results">
-                         <img src="https://yappy.media/images/search-nothing.svg" 
-                              alt="Интересные видео уже в Yappy!"
-                              width="56" 
-                              height="56">
-                         <p>Начните вводить запрос</p>
-                     </div>
-                 `;
+               if (!query) {
+                  showEmptyState();
                   return;
                }
-               const results = mockData.filter(
-                  (item) =>
-                     item.title.toLowerCase().includes(searchQuery) ||
-                     item.hashtags.toLowerCase().includes(searchQuery)
-               );
 
-               if (results.length > 0) {
-                  resultsContainer.innerHTML = results
-                     .map(
-                        (item) => `
-                     <div class="result-card">
-                         <img src="${item.image}" alt="Превью">
-                         <h3>${item.title}</h3>
-                         <div class="hashtags">${item.hashtags}</div>
-                     </div>
-                 `
-                     )
-                     .join("");
-               } else {
+               try {
+                  const response = await fetch(
+                     `http://localhost:5005/api/search?query=${encodeURIComponent(
+                        query
+                     )}`
+                  );
+                  const videoUrls = await response.json();
+
+                  if (videoUrls.length > 0) {
+                     resultsContainer.innerHTML = videoUrls
+                        .map(
+                           (url) => `
+                        <div class="result-card">
+                            <div class="video-preview" data-url="${url}"></div>
+                            <h3>${url.split("/").slice(-2, -1)[0]}</h3>
+                            <div class="video-url">${url}</div>
+                        </div>
+                    `
+                        )
+                        .join("");
+                  } else {
+                     showEmptyState("Ничего не найдено");
+                  }
+               } catch (error) {
+                  console.error("Ошибка поиска:", error);
                   resultsContainer.innerHTML = `
-                     <div class="empty-results">
-                         <img src="https://yappy.media/images/search-nothing.svg" 
-                              alt="Ничего не найдено"
-                              width="56" 
-                              height="56">
-                         <p>По вашему запросу ничего не найдено</p>
-                     </div>
-                 `;
+                    <div class="error-state">
+                        Ошибка соединения с сервером. Попробуйте позже.
+                    </div>
+                `;
                }
             });
-         document.addEventListener("DOMContentLoaded", function () {
-            const resultsContainer = document.getElementById("searchResults");
-            resultsContainer.innerHTML = `
-                 <div class="empty-results">
-                     <img src="https://yappy.media/images/search-nothing.svg" 
-                          alt="Интересные видео уже в Yappy!"
-                          width="56" 
-                          height="56">
-                     <p>Начните вводить запрос</p>
-                 </div>
-             `;
-         });
       </script>
    </body>
 </html>
