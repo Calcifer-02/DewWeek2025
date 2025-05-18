@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="ru">
+   <head>
+      <meta charset="UTF-8" />
+      <title>Главная | VideoSearch</title>
+      <link rel="stylesheet" href="styles.css" />
+      <link
+         href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap"
+         rel="stylesheet"
+      />
+   </head>
+   <body>
+      <header class="header">
+         <nav>
+            <a href="index.html" class="logo"
+               ><img
+                  class="logo"
+                  src="https://static.tildacdn.com/tild3166-3831-4033-b932-656633343264/___.png"
+                  imgfield="img"
+                  style="max-width: 110px; width: 110px"
+                  alt=""
+            /></a>
+            <div class="nav-links">
+               <a href="index.html">Главная</a>
+               <a href="search.html">Поиск</a>
+               <a href="upload.html" class="active">Добавить</a>
+            </div>
+         </nav>
+      </header>
+
+      <main class="search-main">
+         <div class="search-container">
+            <input
+               type="text"
+               id="searchInput"
+               placeholder="Введите запрос..."
+            />
+            <div id="searchResults" class="results-dropdown"></div>
+         </div>
+      </main>
+
+      <footer class="site-footer">
+         <div class="footer-content">
+            <p>
+               Сделано в рамках хакатона от ИТМО <strong>Dew Week 2025</strong>
+            </p>
+            <div class="developers">
+               <span>Команда:</span>
+               <ul>
+                  <li>overfitters</li>
+               </ul>
+            </div>
+         </div>
+      </footer>
+
+      <script>
+         const mockData = [
+            {
+               title: "Видео 1",
+               hashtags: "#кошки #смешное",
+               image: "placeholder.jpg",
+            },
+            {
+               title: "Видео 2",
+               hashtags: "#программирование #хакатон",
+               image: "placeholder.jpg",
+            },
+         ];
+
+         document
+            .getElementById("searchInput")
+            .addEventListener("input", function (e) {
+               const searchQuery = e.target.value.trim().toLowerCase();
+               const resultsContainer =
+                  document.getElementById("searchResults");
+
+               if (searchQuery === "") {
+                  resultsContainer.innerHTML = `
+                     <div class="empty-results">
+                         <img src="https://yappy.media/images/search-nothing.svg" 
+                              alt="Интересные видео уже в Yappy!"
+                              width="56" 
+                              height="56">
+                         <p>Начните вводить запрос</p>
+                     </div>
+                 `;
+                  return;
+               }
+               const results = mockData.filter(
+                  (item) =>
+                     item.title.toLowerCase().includes(searchQuery) ||
+                     item.hashtags.toLowerCase().includes(searchQuery)
+               );
+
+               if (results.length > 0) {
+                  resultsContainer.innerHTML = results
+                     .map(
+                        (item) => `
+                     <div class="result-card">
+                         <img src="${item.image}" alt="Превью">
+                         <h3>${item.title}</h3>
+                         <div class="hashtags">${item.hashtags}</div>
+                     </div>
+                 `
+                     )
+                     .join("");
+               } else {
+                  resultsContainer.innerHTML = `
+                     <div class="empty-results">
+                         <img src="https://yappy.media/images/search-nothing.svg" 
+                              alt="Ничего не найдено"
+                              width="56" 
+                              height="56">
+                         <p>По вашему запросу ничего не найдено</p>
+                     </div>
+                 `;
+               }
+            });
+         document.addEventListener("DOMContentLoaded", function () {
+            const resultsContainer = document.getElementById("searchResults");
+            resultsContainer.innerHTML = `
+                 <div class="empty-results">
+                     <img src="https://yappy.media/images/search-nothing.svg" 
+                          alt="Интересные видео уже в Yappy!"
+                          width="56" 
+                          height="56">
+                     <p>Начните вводить запрос</p>
+                 </div>
+             `;
+         });
+      </script>
+   </body>
+</html>
